@@ -1,12 +1,14 @@
 variable "access_key" {}
 variable "secret_key" {}
+variable "user_name" {}
+variable "private_key_path" {}
+variable "dkr_login" {}
 
 provider "aws" {
   region     = "us-east-1"
   access_key = var.access_key
   secret_key = var.secret_key
 }
-
 
 variable "awsprops" {
     type = map
@@ -19,6 +21,7 @@ variable "awsprops" {
     secgroupname = "WAL-Sec-Group"
   }
 }
+
 resource "random_password" "root"{
   length           = 16
   special          = true
@@ -26,10 +29,10 @@ resource "random_password" "root"{
 }
 
 resource "aws_secretsmanager_secret" "secretDB" {
-  name = "MasterAccountdb"
+  name = "MAccountdb"
 
   tags = {
-    name = "MasterAccountdb"
+    name = "MAccountdb"
   }
 
 }

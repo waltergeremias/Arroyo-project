@@ -5,6 +5,22 @@ resource "aws_instance" "project-wal" {
   key_name         = "ssh-key"
   security_groups = ["${aws_security_group.project-wal-sg.id}"]
 
+  connection {
+    type        = "ssh"
+    host        = self.public_ip
+    user        = "ec2-user"
+    private_key = file(var.private_key_path)
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "sudo yum install -y docker",
+      "sudo systemctl start docker",
+      "export dkr_login=${var.dkr_login}",
+      "echo $dkr_login |sudo docker login --username AWS --password-stdin ${var.user_name}.dkr.ecr.us-east-1.amazonaws.com",
+      "sudo docker pull ${var.user_name}.dkr.ecr.us-east-1.amazonaws.com/ecr_wal:latest",
+      "sudo docker run -p 80:80 -it ${var.user_name}.dkr.ecr.us-east-1.amazonaws.com/ecr_wal:latest &",
+    ]
+  }
   root_block_device {
     delete_on_termination = true
     volume_size = 50
